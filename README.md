@@ -1,6 +1,6 @@
 # authenticate-in-rails
 
-### Gemas y sesiones
+### Gems and sessions
 
 ```ruby
 gem 'devise'
@@ -13,9 +13,9 @@ gem 'activerecord-session_store'`
 
 `bundle install`
 
-La última gema es para gestionar las sesiones y no tener que crear diferentes campos para manejar la integración de varios métodos de autenticación de terceros. 
+The last gem is to manage sessions and not have to create different fields to handle the integration of various third-party authentication methods.
 
-Por terminal debemos crear el archivo para configurar el manejo de sesiones y algunas cosas más como configurar e instalar devise
+By terminal we must create the file to configure session management and some more things like configure and install devise
 
 ```
 rails generate devise:install
@@ -24,13 +24,12 @@ rails generate devise:views
 rails generate active_record:session_migration
 ```
 
-Crear el archivo **config/initializers/session_store.rb** y agregar en el
-Rails.application.config.session_store :active_record_store
+Create the file **config/initializers/session_store.rb** and add Rails.application.config.session_store :active_record_store
 
 `rake db:migrate`
 
 ### Devise
-Editamos el archivo **config/initializers/devise.rb** (Ojo con el callback en la integración de fb)
+Edit the file **config/initializers/devise.rb** (Be careful with the callback in fb integration)
 ```ruby
 config.omniauth :facebook, ENV['FB_ID'], ENV['FB_KEY'], callback_url: "http://localhost:3000/users/auth/facebook/callback"
 config.omniauth :github, ENV['GITHUB_KEY'], ENV['GITHUB_SECRET'], scope: 'user:email'
@@ -38,15 +37,15 @@ config.omniauth :linkedin, ENV['LINKEDIN_ID'], ENV['LINKEDIN_SECRET']
 config.omniauth :twitter, ENV['TWITTER_KEY'], ENV['TWITTER_SECRET']
 ```
 
-### Modelo User
-En el modelo **user.rb** debemos indicar que usaremos como proveedores de omniauth
+### User Model
+In User Model **user.rb** we must indicate that we will use omniauth as providers
 ```ruby
 devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
          :omniauthable, :omniauth_providers => [:linkedin, :google_oauth2, :github, :facebook]
 ```
 
-Además agregamos el metodo en el que crearemos o solo autenticaremos al usuario en base a su email
+We also add the method in which we will create or only authenticate the user based on their email
 ```ruby
 def self.from_omniauth(auth)
 	where(email: auth.info.email).first_or_create do |user|
@@ -56,8 +55,8 @@ def self.from_omniauth(auth)
 end
 ```
 
-### Rutas
-Debemos actualizar las rutas para que los respectivos callback de cada integración lleguen al mismo método, por lo que dejamos las rutas de usuario de esta manera
+### Routes
+We must update the routes so that the respective callbacks of each integration reach the same method, so we leave the user routes in this way
 ```ruby
 devise_for :users, controllers: {
 	omniauth_callbacks: 'users/omniauth_callbacks'
@@ -65,6 +64,6 @@ devise_for :users, controllers: {
 ```
 
 ### Callback Controller
-Por último creamos el controlador correspondiente en **/app/controllers/users/omniauth_callbacks_controller.rb** (el codigo esta en el repo) donde especificamos para cada integración un método (podrían ser todos el mismo, pero asi es mas claro en un comienzo).
+Finally we create the corresponding controller in **/app/controllers/users/omniauth_callbacks_controller.rb** (the code is in the repo) where we specify a method for each integration (they could all be the same, but it is clearer in the beginning).
 
-Eso es todo!
+That's all!
